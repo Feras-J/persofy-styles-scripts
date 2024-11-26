@@ -1,3 +1,17 @@
+// test 
+var app = new Vue({
+  el: '#mockup-generator-navigation',
+    mounted() {
+      const nav = document.querySelectorAll('#mockup-generator-navigation a');
+      let url = window.location.pathname;
+      for (let i = 0; i < nav.length; i++) {
+        var current = url.match(nav[i].classList[0])
+        if(current !== null){
+          nav[i].classList.add('active');
+        }
+      } 
+    },
+  });
 
 
 ////<!--GOOGLE MAPS INI-->
