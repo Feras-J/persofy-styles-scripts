@@ -1,4 +1,6 @@
 // test 
+import Vue from 'vue';
+
 var app = new Vue({
   el: '#mockup-generator-navigation',
     mounted() {
