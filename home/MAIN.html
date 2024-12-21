@@ -2435,234 +2435,112 @@
 
 <!--NEW SCRIPT DOWNLOAD-->
 <!-- Include html2canvas -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Function to handle mockup download
+    function downloadMockup(targetElementId) {
+        const element = document.getElementById(targetElementId);
 
-//for the mockup download
-// document.getElementById("downloadButton").addEventListener("click", function () {
-//   // Wait for a short delay to make sure all elements are rendered and loaded
-//   setTimeout(() => {
-//     const targetElementId = "linkedin-mockup-preview";
-//     const element = document.getElementById(targetElementId);
-//     if (element) {
-//       html2canvas(element, {
-//         useCORS: true,
-//         scale: 2,
-//         windowWidth: document.body.scrollWidth,
-//         windowHeight: document.body.scrollHeight
-//       }).then((canvas) => {
-//         const link = document.createElement('a');
-//         link.download = 'linkedin-ad-mockup.png'; // Set download file name
-//         link.href = canvas.toDataURL(); // Get PNG data URL from the canvas
-//         link.click(); // Trigger download
-//       }).catch((error) => {
-//         console.error("Error capturing element for download: ", error);
-//       });
-//     } else {
-//       console.error(`Element with ID '${targetElementId}' not found.`);
-//     }
-//   }, 500); // Adjust the delay if needed
-// });
+        if (!element) {
+            alert(`Element with ID '${targetElementId}' not found.`);
+            return;
+        }
 
+        setTimeout(() => {
+            html2canvas(element, {
+                useCORS: true,
+                scale: 2,
+                allowTaint: false,
+                onclone: (clonedDocument) => {
+                    const clonedElement = clonedDocument.getElementById(targetElementId);
+                    clonedElement.style.display = 'block';
+                },
+            }).then((canvas) => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL("image/png");
+                link.download = `${targetElementId}-mockup.png`;
 
-document.getElementById("downloadButtonGM").addEventListener("click", function () {
-  downloadMockup("google-mockup-preview");
-});
-
-document.getElementById("downloadButtonLI").addEventListener("click", function () {
-  downloadMockup("linkedin-mockup-preview");
-});
-
-document.getElementById("downloadButtonFB").addEventListener("click", function () {
-  downloadMockup("facebook-mockup-preview");
-});
-
-document.getElementById("downloadButtonIG").addEventListener("click", function () {
-  downloadMockup("instagram-mockup-preview");
-});
-
-function downloadMockup(targetElementId) {
-    const element = document.getElementById(targetElementId);
-
-    if (!element) {
-        alert(`Element with ID '${targetElementId}' not found.`);
-        return;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }).catch((error) => {
+                alert("Error capturing element for download: " + error.message);
+            });
+        }, 500);
     }
 
-    setTimeout(() => {
-        html2canvas(element, {
-            useCORS: true, // Enable cross-origin handling
-            scale: 2,      // High-resolution image capture
-            allowTaint: false, // Avoid any tainting-related issues
-            onclone: (clonedDocument) => {
-                // This ensures the styles applied in the original are respected in the clone
-                const clonedElement = clonedDocument.getElementById(targetElementId);
-                clonedElement.style.display = 'block';
-            },
-        }).then((canvas) => {
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL("image/png");
-            link.download = `${targetElementId}-mockup.png`;
+    // Add event listeners for download buttons
+    const downloadButtons = [
+        { id: "downloadButtonGM", target: "google-mockup-preview" },
+        { id: "downloadButtonLI", target: "linkedin-mockup-preview" },
+        { id: "downloadButtonFB", target: "facebook-mockup-preview" },
+        { id: "downloadButtonIG", target: "instagram-mockup-preview" }
+    ];
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }).catch((error) => {
-            alert("Error capturing element for download: " + error.message);
-        });
-    }, 500);
-}
+    downloadButtons.forEach(button => {
+        const element = document.getElementById(button.id);
+        if (element) {
+            element.addEventListener("click", () => downloadMockup(button.target));
+        }
+    });
 
-//--------for the photo-upload---------------------------------
+    // Function to handle file upload
+    function handleFileUpload(event, wrapperId, borderRadius = '50%') {
+        const file = event.target.files[0];
 
-function handleFileUpload(event, wrapperId, borderRadius = '50%') {
-  const file = event.target.files[0];
-  
-  if (!file) {
-    console.error("No file selected");
-    return;
-  }
+        if (!file) {
+            console.error("No file selected");
+            return;
+        }
 
-  if (file.type !== "image/jpeg" && file.type !== "image/png" && file.type !== "image/svg+xml") {
-    alert("Please upload a valid image file (JPG, PNG, SVG).");
-    return;
-  }
+        if (!["image/jpeg", "image/png", "image/svg+xml"].includes(file.type)) {
+            alert("Please upload a valid image file (JPG, PNG, SVG).");
+            return;
+        }
 
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-    const profileWrapper = document.getElementById(wrapperId);
-    if (profileWrapper) {
-      profileWrapper.innerHTML = ''; // Clear previous content
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.alt = 'Uploaded Image';
-      img.style.maxWidth = '100%';
-      img.style.height = '100%';
-      img.style.borderRadius = borderRadius; // Set dynamic border radius
-      
-      profileWrapper.appendChild(img);
-    } else {
-      console.error(`Element with ID "${wrapperId}" not found.`);
-    }
-  };
-
-  reader.readAsDataURL(file);
-}
-
-document.getElementById('fileInputLI').addEventListener('change', function(event) {
-  handleFileUpload(event, 'profile-picture-wrapper-LI','0%');
-});
-
-document.getElementById('fileInputFB').addEventListener('change', function(event) {
-    handleFileUpload(event, 'profile-picture-wrapper-FB');
-  });
-
-document.getElementById('fileInputIG').addEventListener('change', function(event) {
-  handleFileUpload(event, 'profile-picture-wrapper-IG');
-});
-
-//------------------------//
-document.getElementById('postFileInput').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-
-    if (file && (file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/svg+xml")) {
         const reader = new FileReader();
 
         reader.onload = function(e) {
-            const postBody = document.getElementById('post-body-FB');
-
-            if (postBody) {
-                postBody.innerHTML = ''; // Clear previous content
+            const profileWrapper = document.getElementById(wrapperId);
+            if (profileWrapper) {
+              profileWrapper.innerHTML = ''; // Clear previous content
                 const img = document.createElement('img');
                 img.src = e.target.result;
-                img.alt = 'Uploaded Post Image';
+                img.alt = 'Uploaded Image';
                 img.style.maxWidth = '100%'; // Maintain aspect ratio
                 img.style.height = 'auto';  // Automatic height adjustment
                 img.style.objectFit = 'cover'; // Optional, makes sure it fits its container
-                img.style.borderRadius = '5px'; // To match rounded container
+                img.style.borderRadius = "2px"; // Set dynamic border radius 
 
-                postBody.appendChild(img);
+                profileWrapper.appendChild(img);
             } else {
-                console.error('Element with ID "post-body-FB" not found.');
+                console.error(`Element with ID "${wrapperId}" not found.`);
             }
         };
 
         reader.readAsDataURL(file);
-    } else {
-        alert('Please upload a valid image file (JPG, PNG, SVG).');
     }
+
+    // Add event listeners for file inputs
+    const fileInputs = [
+        { id: 'fileInputLI', wrapper: 'profile-picture-wrapper-LI', borderRadius: '0%' },
+        { id: 'fileInputFB', wrapper: 'profile-picture-wrapper-FB' },
+        { id: 'fileInputIG', wrapper: 'profile-picture-wrapper-IG' },
+        { id: 'postFileInput', wrapper: 'post-body-FB', borderRadius: '5px' },
+        { id: 'postFileInputIG', wrapper: 'post-body-IG', borderRadius: '5px' },
+        { id: 'postFileInputLI', wrapper: 'post-body-LI', borderRadius: '5px' }
+    ];
+
+    fileInputs.forEach(input => {
+        const element = document.getElementById(input.id);
+        if (element) {
+            element.addEventListener('change', (event) => handleFileUpload(event, input.wrapper, input.borderRadius));
+        }
+    });
 });
-
-document.getElementById('postFileInputIG').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-
-    if (file && (file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/svg+xml")) {
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const postBody = document.getElementById('post-body-IG');
-
-            if (postBody) {
-                postBody.innerHTML = ''; // Clear previous content
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Uploaded Post Image';
-                img.style.maxWidth = '100%'; // Maintain aspect ratio
-                img.style.height = 'auto';  // Automatic height adjustment
-                img.style.objectFit = 'cover'; // Optional, makes sure it fits its container
-                img.style.borderRadius = '5px'; // To match rounded container
-
-                postBody.appendChild(img);
-            } else {
-                console.error('Element with ID "post-body-FB" not found.');
-            }
-        };
-
-        reader.readAsDataURL(file);
-    } else {
-        alert('Please upload a valid image file (JPG, PNG, SVG).');
-    }
-});
-
-
-
-document.getElementById('postFileInputLI').addEventListener('change',function(event) {
-	    const file = event.target.files[0];
-
-    if (file && (file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/svg+xml")) {
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const postBody = document.getElementById('post-body-LI');
-
-            if (postBody) {
-                postBody.innerHTML = ''; // Clear previous content
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Uploaded Post Image';
-                img.style.maxWidth = '100%'; // Maintain aspect ratio
-                img.style.height = 'auto';  // Automatic height adjustment
-                img.style.objectFit = 'cover'; // Optional, makes sure it fits its container
-                img.style.borderRadius = '5px'; // To match rounded container
-
-                postBody.appendChild(img);
-            } else {
-                console.error('Element with ID "post-body-FB" not found.');
-            }
-        };
-
-        reader.readAsDataURL(file);
-    } else {
-        alert('Please upload a valid image file (JPG, PNG, SVG).');
-    }
-});
-
-//---------------------------------------------------------//
-
-
 </script>
-
 
 <!--NEW SCRIPTS-->
 <script>
